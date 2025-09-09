@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Canlı Yayın Chat</title>
+<style>
+  :root{
+    --chat-bg: rgba(255,255,255,0.85);
+    --page-bg: #f0f0f0;
+    --text-color: #000;
+  }
+  html,body{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--page-bg);color:var(--text-color);}
+  .container{max-width:1100px;margin:12px auto;display:grid;grid-template-columns:1fr 360px;gap:12px;}
+  .panel{background:var(--chat-bg);padding:12px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.08);}
+  header h1{margin:0 0 8px 0;font-size:20px;}
+  #chat{height:520px;overflow:auto;border:1px solid #ddd;padding:10px;border-radius:6px;background:rgba(255,255,255,0.95);}
+  .msg{margin:6px 0;padding:6px;border-radius:6px;}
+  .meta{font-size:12px;color:#666;margin-bottom:4px;}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  input[type="text"], input[type="url"], select{padding:6px;border:1px solid #ccc;border-radius:4px;font-size:14px;}
+  button{padding:6px 10px;border-radius:5px;border:0;background:#2b7cff;color:#fff;cursor:pointer;}
+  button.secondary{background:#666;}
+  .small{padding:4px 8px;font-size:13px;}
+  #typing{font-style:italic;color:#777;height:18px;margin-top:6px;}
+  .preview{max-width:200px;max-height:120px;border:1px solid #ccc;display:block;margin-top:6px;}
+  .status{position:relative;display:inline-block;margin-left:6px;padding:2px 6px;border-radius:4px;color:#fff;font-size:12px;}
+  .status.valid{background:rgba(0,128,0,0.8);}
+  .status.invalid{background:rgba(255,0,0,0.8);}
+  .right-column .panel{margin-bottom:12px;}
+  .logline{font-family:monospace;font-size:12px;color:#333;margin:4px 0;padding:4px;background:#fafafa;border-radius:4px;}
+  audio { display:block; margin-top:8px; max-width:100%; }
+</style>
+</head>
+<body>
+<div style="padding:12px;">
+  <header style="margin-bottom:8px;">
+    <h1>🎤 Canlı Yayın Chat — Kullanıcı Arayüzü</h1>
+    <div style="font-size:13px;color:#444">Sunucuya bağlanıp sohbet edin, DJ şarkı yayınlayabilir veya mikrofondan canlı konuşabilirsiniz.</div>
+  </header>
+
+  <div class="container">
+    <!-- Sol: Chat -->
+    <div class="panel">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+        <input id="nameInput" type="text" placeholder="Adınız (örn. Ahmet)" style="flex:1">
+        <button id="joinBtn" class="small">Bağlan</button>
+        <button id="disconnectBtn" class="small secondary" style="display:none">Çık</button>
+      </div>
+
+      <div id="chat" aria-live="polite"></div>
+      <div id="typing"></div>
+
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;">
+        <input id="msgInput" type="text" placeholder="Mesaj yaz..." style="flex:1" disabled>
+        <select id="emojiPicker" title="Emoji">
+          <option value="">🙂</option>
+          <option value="😀">😀</option>
+          <option value="😂">😂</option>
+          <option value="😍">😍</option>
+          <option value="😎">😎</option>
+          <option value="🎶">🎶</option>
+          <option value="❤️">❤️</option>
+        </select>
+        <button id="sendBtn">Gönder</button>
+      </div>
+
+      <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <label>Renk: <input id="colorPicker" type="color" value="#000000"></label>
+        <label>Yazı Boyutu:
+          <select id="fontSize">
+            <option value="14px">14</option>
+            <option value="16px" selected>16</option>
+            <option value="18px">18</option>
+            <option value="20px">20</option>
+          </select>
+        </label>
+        <label>Kalınlık:
+          <select id="fontWeight">
+            <option value="normal">İnce</option>
+            <option value="500" selected>Orta</option>
+            <option value="bold">Kalın</option>
+          </select>
+        </label>
+
+        <button id="clearLocal" class="small secondary">Chat Temizle (Kendi)</button>
+        <button id="clearAll" class="small secondary">Chat Temizle (Herkes)</button>
+      </div>
+
+      <hr>
+
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button id="startMic" class="small">🎙️ Mikrofonu Aç</button>
+        <button id="stopMic" class="small secondary">Durdur</button>
+        <div id="micLog" style="margin-left:8px;color:#444"></div>
+      </div>
+
+      <div style="margin-top:8px">
+        <small style="color:#666">DJ şarkı yayınlarsa otomatik çalacaktır. Ayrıca DJ panelinden duyuru gönderilebilir.</small>
+      </div>
+    </div>
+
+    <!-- Sağ: Ayarlar / DJ ile ilgili -->
+    <div class="right-column">
+      <div class="panel">
+        <h3>Tema / Arka plan</h3>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input id="bgUrlInput" type="url" placeholder="Arka plan resmi URL'si..." style="flex:1">
+          <button id="applyBgBtn" class="small">Uygula</button>
+        </div>
+        <div style="margin-top:6px;">
+          <img id="bgPreview" class="preview" src="" alt="Önizleme" style="display:none;">
+          <span id="bgStatus" class="status" style="display:none"></span>
+        </div>
+        <small style="color:#666">Geçersiz URL girilirse varsayılan arka plan korunur.</small>
+      </div>
+
+      <div class="panel">
+        <h3>DJ & Yönetim</h3>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <a href="dj.html" target="_blank"><button>DJ Panelini Aç</button></a>
+          <button id="requestStats" class="small secondary">İstatistik İste</button>
+        </div>
+        <div id="stats" style="font-size:13px;color:#222"></div>
+      </div>
+
+      <div class="panel">
+        <h3>Canlı log (Sunucu)</h3>
+        <div id="miniLog"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let name="", ws, audioContext=new (window.AudioContext || window.webkitAudioContext)(), micStream, mediaRecorder;
+const joinBtn=document.getElementById("joinBtn"),
+disconnectBtn=document.getElementById("disconnectBtn"),
+nameInput=document.getElementById("nameInput"),
+msgInput=document.getElementById("msgInput"),
+sendBtn=document.getElementById("sendBtn"),
+chatEl=document.getElementById("chat"),
+typingEl=document.getElementById("typing"),
+colorPicker=document.getElementById("colorPicker"),
+fontSizeSelect=document.getElementById("fontSize"),
+fontWeightSelect=document.getElementById("fontWeight"),
+emojiPicker=document.getElementById("emojiPicker"),
+clearLocalBtn=document.getElementById("clearLocal"),
+clearAllBtn=document.getElementById("clearAll"),
+startMicBtn=document.getElementById("startMic"),
+stopMicBtn=document.getElementById("stopMic"),
+micLog=document.getElementById("micLog"),
+bgUrlInput=document.getElementById("bgUrlInput"),
+applyBgBtn=document.getElementById("applyBgBtn"),
+bgPreview=document.getElementById("bgPreview"),
+bgStatus=document.getElementById("bgStatus"),
+statsEl=document.getElementById("stats"),
+miniLog=document.getElementById("miniLog"),
+requestStatsBtn=document.getElementById("requestStats");
+
+joinBtn.addEventListener("click", ()=>{
+  const n=nameInput.value.trim(); if(!n){ alert("Lütfen isim girin"); return;} name=n; connect();
+});
+disconnectBtn.addEventListener("click", ()=>{ if(ws) ws.close(); setDisconnectedUI(); });
+sendBtn.addEventListener("click", sendMessage);
+msgInput.addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(); });
+emojiPicker.addEventListener("change", ()=>{ if(emojiPicker.value) msgInput.value+=" "+emojiPicker.value; emojiPicker.value="";});
+msgInput.addEventListener("input", ()=>{ if(ws && ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({type:"typing",user:name}));});
+clearLocalBtn.addEventListener("click", ()=>{ chatEl.innerHTML=""; });
+clearAllBtn.addEventListener("click", ()=>{ if(ws && ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({type:"admin",action:"clearChat",user:name}));});
+startMicBtn.addEventListener("click", async ()=>{
+  if(!name){ alert("Önce bağlanın"); return; }
+  micStream=await navigator.mediaDevices.getUserMedia({audio:true});
+  mediaRecorder=new MediaRecorder(micStream);
+  mediaRecorder.ondataavailable=e=>{ if(e.data.size>0 && ws && ws.readyState===WebSocket.OPEN) ws.send(e.data);};
+  mediaRecorder.start(250);
+  micLog.textContent="Mikrofon açık"; addMiniLog("Mikrofon yayını başladı");
+});
+stopMicBtn.addEventListener("click", ()=>{
+  if(mediaRecorder) mediaRecorder.stop(); if(micStream) micStream.getTracks().forEach(t=>t.stop());
+  micLog.textContent="Mikrofon durdu"; addMiniLog("Mikrofon durdu");
+});
+applyBgBtn.addEventListener("click", ()=>{
+  const url=bgUrlInput.value.trim(); if(!url) return alert("URL girin");
+  const img=new Image(); img.onload=()=>{ document.body.style.backgroundImage=`url('${url}')`; document.body.style.backgroundSize="cover"; if(ws && ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({type:"themeChange",url}));}; img.onerror=()=>alert("Geçersiz resim URL"); img.src=url;
+});
+
+requestStatsBtn.addEventListener("click", ()=>{ if(ws && ws.readyState===WebSocket.OPEN) ws.send(JSON.stringify({type:"system",action:"requestStats",user:name})); });
+
+function connect(){
+  const wsUrl=window.location.origin.replace(/^http/,"ws"); ws=new WebSocket(wsUrl); ws.binaryType="blob";
+  ws.onopen=()=>{ addMiniLog("Sunucuya bağlandı"); setConnectedUI(); };
+  ws.onmessage=async ev=>{
+    if(ev.data instanceof Blob){
+      const ab=await ev.data.arrayBuffer().catch(()=>null); if(!ab) return;
+      const audio=new Audio(); audio.src=URL.createObjectURL(ev.data); audio.autoplay=true; document.body.appendChild(audio);
+      return;
+    }
+    let data; try{data=JSON.parse(ev.data);}catch(e){return;}
+    if(data.type==="chatMessage") appendMessage(data);
+    else if(data.type==="typing") showTyping(data.user);
+    else if(data.type==="announcement") appendAnnouncement(data.text);
+    else if(data.type==="clearChat") chatEl.innerHTML="";
+    else if(data.type==="playSong") appendSystem(`🎶 DJ şarkı yayını başladı: ${data.name}`);
+    else if(data.type==="system") appendSystem(data.text||`${data.user} işlem yaptı`);
+    else if(data.type==="stats") statsEl.textContent=`👥 Kullanıcı: ${data.count||0}`;
+    else if(data.type==="log") addMiniLog(data.text);
+  };
+  ws.onclose=()=>{ addMiniLog("Sunucu bağlantısı koptu"); setDisconnectedUI(); };
+  ws.onerror=e=>{ addMiniLog("WS hata"); console.error(e); };
+}
+
+function sendMessage(){
+  if(!ws || ws.readyState!==WebSocket.OPEN){ alert("Sunucuya bağlı değilsiniz"); return; }
+  const textRaw=msgInput.value.trim(); if(!textRaw) return;
+  const payload={type:"chatMessage",user:name,text:textRaw,color:colorPicker.value,size:fontSizeSelect.value,weight:fontWeightSelect.value,time:new Date().toLocaleTimeString()};
+  ws.send(JSON.stringify(payload));
+  appendMessage(payload,true); msgInput.value="";
+}
+
+function appendMessage(data,isLocal=false){
+  const div=document.createElement("div"); div.className="msg"; div.style.color=data.color||"#000"; div.style.fontSize=data.size||"16px"; div.style.fontWeight=data
