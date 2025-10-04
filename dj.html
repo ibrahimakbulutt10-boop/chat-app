@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DJ Paneli</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="glass-panel">
+      <h2>DJ Girişi</h2>
+      <input type="text" id="dj-nickname" placeholder="DJ takma adınız" />
+      <input type="color" id="dj-color" value="#ffcc00" />
+      <button id="dj-enter">DJ olarak katıl</button>
+    </div>
+
+    <div class="glass-panel">
+      <h3>Kullanıcılar</h3>
+      <div id="user-list"></div>
+    </div>
+
+    <div class="glass-panel">
+      <h3>🎵 Bilgisayardan Şarkı Seç</h3>
+      <input type="file" id="local-track" accept="audio/*" />
+    </div>
+
+    <div class="glass-panel">
+      <h3>🌐 URL ile Şarkı Ekle</h3>
+      <input type="text" id="url-input" placeholder="https://... .mp3" />
+      <button id="play-url">Çal</button>
+    </div>
+
+    <div class="glass-panel">
+      <audio id="audio-player" controls style="width:100%; margin-top:10px;"></audio>
+    </div>
+
+    <div class="glass-panel">
+      <h3>🎤 Mikrofon Yayını</h3>
+      <button id="mic-btn">Bas-Konuş</button>
+      <p id="mic-status">🎙️ Kapalı</p>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-database-compat.js"></script>
+  <script src="dj.js"></script>
+</body>
+</html>
+
