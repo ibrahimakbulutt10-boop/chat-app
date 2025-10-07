@@ -1,121 +1,40 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', sans-serif;
-}
-
 body {
-  background: linear-gradient(135deg, #1e1e2f, #2c2c3c);
-  color: white;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background: url('bg.jpg') no-repeat center center fixed;
+  background-size: cover;
 }
 
 .container {
-  width: 100%;
-  max-width: 600px;
   display: flex;
-  flex-direction: column;
-  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 20px;
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
-}
-
-button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  background-color: #ffcc00;
-  color: #000;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-button:hover {
-  background-color: #ffe066;
-}
-
-input[type="text"],
-input[type="color"],
-input[type="file"] {
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  font-size: 16px;
-  width: 100%;
-  background: rgba(255,255,255,0.2);
+  border-radius: 15px;
+  padding: 40px;
+  text-align: center;
   color: #fff;
-  margin-bottom: 10px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
 }
 
-.input-row {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-#messages {
-  max-height: 300px;
-  overflow-y: auto;
-  background: rgba(0,0,0,0.2);
-  padding: 10px;
+.btn {
+  margin: 10px;
+  padding: 12px 24px;
+  font-size: 16px;
+  border: none;
   border-radius: 8px;
-}
-
-.user-card {
-  background: rgba(255,255,255,0.1);
-  padding: 8px;
-  margin-bottom: 5px;
-  border-radius: 6px;
+  background: #ff4081;
+  color: white;
   cursor: pointer;
+  transition: 0.3s;
 }
 
-.context-menu {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #222;
-  padding: 10px;
-  border-radius: 8px;
-  z-index: 999;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-audio {
-  width: 100%;
-  margin-top: 10px;
-}
-
-@media screen and (max-width: 600px) {
-  .container {
-    max-width: 100%;
-    padding: 10px;
-  }
-
-  .glass-panel {
-    padding: 15px;
-  }
-
-  button {
-    width: 100%;
-  }
-
-  .input-row {
-    flex-direction: column;
-  }
+.btn:hover {
+  background: #e91e63;
 }
 

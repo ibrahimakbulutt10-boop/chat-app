@@ -3,31 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sohbet</title>
+  <title>Sohbet Girişi</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="container">
     <div class="glass-panel">
-      <h2>Sohbete Katıl</h2>
-      <input type="text" id="nickname" placeholder="Takma adınız" />
-      <input type="color" id="nick-color" value="#ffcc00" />
-      <button id="enter-chat">Katıl</button>
-    </div>
-
-    <div class="glass-panel">
-      <div class="input-row">
-        <input type="text" id="message-input" placeholder="Mesaj yaz..." />
-        <button id="send-btn">Gönder</button>
-        <button id="clear-btn">Temizle</button>
-      </div>
-      <div id="messages"></div>
+      <h2>🎤 Sohbete Katıl</h2>
+      <input type="text" id="nickname" placeholder="Takma adınızı girin" />
+      <button onclick="startChat()" class="btn">Giriş Yap</button>
     </div>
   </div>
-
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.5.2/firebase-database-compat.js"></script>
-  <script src="chat.js"></script>
+  <script>
+    function startChat() {
+      const nick = document.getElementById('nickname').value;
+      if (nick.trim() !== "") {
+        localStorage.setItem("nickname", nick);
+        window.location.href = "chat-room.html";
+      }
+    }
+  </script>
 </body>
 </html>
 

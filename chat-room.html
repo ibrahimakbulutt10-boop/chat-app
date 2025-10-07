@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sohbet Odası</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="glass-panel">
+      <h2>🎧 Sohbet Odası</h2>
+      <div id="messages"></div>
+      <input type="text" id="messageInput" placeholder="Mesajınızı yazın" />
+      <button onclick="sendMessage()" class="btn">Gönder</button>
+    </div>
+  </div>
+  <script src="firebase-config.js"></script>
+  <script src="chat.js"></script>
+</body>
+</html>
+
